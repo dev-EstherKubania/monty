@@ -39,7 +39,7 @@ void execute_instruction(stack_t **stack, char *line, unsigned int line_number)
 
 	if (sscanf(line, "%s %d", opcode, &arg) == 2)
 	{
-	if (strcmp(opcode, "push") == 0 || strcmp(opcode, "POP") == 0)
+	if (strcmp(opcode, "push") == 0 || strcmp(opcode, "pop") == 0)
 	{
 	process_push_pop(stack, arg, line_number);
 	}
