@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /**
  * struct stack_s - doubly linked list representation of a stack (or queue)
@@ -35,11 +36,11 @@ typedef struct instruction_s
 } instruction_t;
 
 /* Stack operations */
+int pop(stack_t **stack, unsigned int line_number);
 void push(stack_t **stack, int value);
-int pop(stack_t **stack);
-
 /* Opcode execution */
 void execute(const char *filename);
+void execute_instruction(stack_t **stack, char *line, unsigned int line_number);
 
 /* Opcode processing functions */
 void process_push_pop(stack_t **stack, int arg, unsigned int line_number);
@@ -49,6 +50,5 @@ void process_pint(stack_t **stack, unsigned int line_number);
 void process_swap(stack_t **stack, unsigned int line_number);
 void process_add(stack_t **stack, unsigned int line_number);
 void process_nop(stack_t **stack, unsigned int line_number);
-
 #endif /* MONTY_H */
 
