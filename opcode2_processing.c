@@ -24,19 +24,36 @@ void process_sub(stack_t **stack, unsigned int line_num)
  */
 void process_div(stack_t **stack, unsigned int line_num)
 {
-	if (*stack == NULL || (*stack)->next == NULL)
-	{
-	fprintf(stderr, "L%u: can't div, stack too short\n", line_num);
-	exit(EXIT_FAILURE);
-	}
-	if ((*stack)->n == 0)
-	{
-	fprintf(stderr, "L%u: division by 0\n", line_num);
-	exit(EXIT_FAILURE);
-	}
+	stack_t *h;
+	int len = 0, aux;
 
-	(*stack)->next->n /= (*stack)->n;
-	process_pop(stack, line_num);
+	h = *stack;
+	while (h)
+	{
+		h = h->next;
+		len++;
+	}
+	if (len < 2)
+	{
+		fprintf(stderr, "L%d: can't div, stack too short\n", line_num);
+		fclose(bus.file);
+		free(bus.content);
+		process_free_stack(*stack);
+		exit(EXIT_FAILURE);
+	}
+	h = *stack;
+	if (h->n == 0)
+	{
+		fprintf(stderr, "L%d: division by zero\n", line_num);
+		fclose(bus.file);
+		free(bus.content);
+		process_free_stack(*stack);
+		exit(EXIT_FAILURE);
+	}
+	aux = h->next->n / h->n;
+	h->next->n = aux;
+	*stack = h->next;
+	free(h);
 }
 
 /**
