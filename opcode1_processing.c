@@ -8,15 +8,30 @@
  */
 void process_add(stack_t **stack, unsigned int line_num)
 {
-	if (*stack == NULL || (*stack)->next == NULL)
-	{
-	fprintf(stderr, "L%u: can't add, stack too short\n", line_num);
-	exit(EXIT_FAILURE);
-	}
+	stack_t *h;
+	int len = 0, aux;
 
-	(*stack)->next->n += (*stack)->n;
-	process_pop(stack, line_num);
+	h = *stack;
+	while (h)
+	{
+		h = h->next;
+		len++;
+	}
+	if (len < 2)
+	{
+		fprintf(stderr, "L%d: can't add, stack too short\n", line_num);
+		fclose(bus.file);
+		free(bus.content);
+		process_free_stack(*stack);
+		exit(EXIT_FAILURE);
+	}
+	h = *stack;
+	aux = h->n + h->next->n;
+	h->next->n = aux;
+	*stack = h->next;
+	free(h);
 }
+
 /**
  * process_mod - computes the remainder of the division
  * @stack: head pointer of the stack
