@@ -33,7 +33,7 @@ void process_add(stack_t **stack, unsigned int line_num)
 }
 
 /**
- * process_mod - computes the remainder of the division
+ * process_mod - computes the remaining division
  * @stack: head pointer of the stack
  * @line_num: line number for the file
  * Return: nothing
