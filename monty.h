@@ -1,9 +1,14 @@
-#ifndef MONTY_H
-#define MONTY_H
+#ifndef _MONTY_H_
+#define _MONTY_H_
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <ctype.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 
 /**
  * struct stack_s - doubly linked list representation of a stack (or queue)
@@ -16,9 +21,9 @@
  */
 typedef struct stack_s
 {
-    int n;
-    struct stack_s *prev;
-    struct stack_s *next;
+        int n;
+        struct stack_s *prev;
+        struct stack_s *next;
 } stack_t;
 
 /**
@@ -31,24 +36,62 @@ typedef struct stack_s
  */
 typedef struct instruction_s
 {
-    char *opcode;
-    void (*f)(stack_t **stack, unsigned int line_number);
+        char *opcode;
+        void (*f)(stack_t **stack, unsigned int line_number);
 } instruction_t;
 
-/* Stack operations */
-int pop(stack_t **stack, unsigned int line_number);
-void push(stack_t **stack, int value);
-/* Opcode execution */
-void execute(const char *filename);
-void execute_instruction(stack_t **stack, char *line, unsigned int line_number);
+/**
+ * struct bus_s - variables -args, file, line content
+ * @arg: value
+ * @file: pointer to monty file
+ * @content: line content
+ * @lifi: flag change stack <-> queue
+ * Description: carries values through the program
+ */
+typedef struct bus_s
+{
+        char *arg;
+        FILE *file;
+        char *content;
+        int lifi;
+}  bus_t;
 
-/* Opcode processing functions */
-void process_push_pop(stack_t **stack, int arg, unsigned int line_number);
-void process_print(stack_t **stack, unsigned int line_number);
-void process_pall(stack_t **stack, unsigned int line_number);
-void process_pint(stack_t **stack, unsigned int line_number);
-void process_swap(stack_t **stack, unsigned int line_number);
-void process_add(stack_t **stack, unsigned int line_number);
-void process_nop(stack_t **stack, unsigned int line_number);
-#endif /* MONTY_H */
+/* Global variable */
+extern bus_t bus;
+
+/* Stack functions */
+void process_addqueue(stack_t **stack, int n);
+void process_addnode(stack_t **stack, int n);
+void process_free_stack(stack_t *stack);
+void process_f_stack(stack_t **stack, unsigned int line_num);
+void execute(char *line_content, stack_t **stack, unsigned int line_counter, FILE *monty_file);
+/* Error handlers */
+void process_usage_err(void);
+void process_f_open_err(char *filename);
+void process_invalid_op_err(char *opcode, unsigned int line_num);
+void process_malloc_err(void);
+void process_push_err(unsigned int line_num);
+void process_pint_err(unsigned int line_num);
+void process_pop_err(unsigned int line_num);
+void process_swap_err(unsigned int line_num);
+void process_add_err(unsigned int line_num);
+void process_sub_err(unsigned int line_num);
+
+/* opcode functions */
+void process_push(stack_t **stack, unsigned int line_num);
+void process_pall(stack_t **stack, unsigned int line_num);
+void process_pint(stack_t **stack, unsigned int line_num);
+void process_pop(stack_t **stack, unsigned int line_num);
+void process_swap(stack_t **stack, unsigned int line_num);
+void process_add(stack_t **stack, unsigned int line_num);
+void process_nop(stack_t **stack, unsigned int line_num);
+void process_sub(stack_t **stack, unsigned int line_num);
+void process_div(stack_t **stack, unsigned int line_num);
+void process_mul(stack_t **stack, unsigned int line_num);
+void process_mod(stack_t **stack, unsigned int line_num);
+void process_pchar(stack_t **stack, unsigned int line_num);
+void process_rotr(stack_t **stack, unsigned int line_num);
+void process_queue(stack_t **stack, unsigned int line_num);
+void process_stack(stack_t **stack, unsigned int line_num);
+#endif
 

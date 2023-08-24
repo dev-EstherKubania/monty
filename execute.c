@@ -1,77 +1,53 @@
 #include "monty.h"
-
 /**
- * execute - Executes the Monty ByteCode instructions from a file.
- * @filename: Name of the input file
+ * execute - Executes Monty bytecode instructions from a file
+ * @line_content: Line content from the Monty file
+ * @stack: Pointer to the stack of integers
+ * @line_counter: Current line number in the Monty file
+ * @monty_file: Pointer to the Monty file being processed
+ * Return: Returns 0 on successful execution, 1 on failure
  */
-void execute(const char *filename)
+void execute(char *line_content, stack_t **stack,
+		unsigned int line_counter, FILE *monty_file)
 {
-	stack_t *stack;
-	char line[100];
-	unsigned int line_number = 0;
-	FILE *file = fopen(filename, "r");
+	instruction_t opcode_func[] = {
+	{"push", process_push}, {"pall", process_pall},
+	{"pint", process_pint},	{"pop", process_pop},
+	{"swap", process_swap},	{"add", process_add},
+	{"nop", process_nop},	{"sub", process_sub},
+	{"div", process_div},	{"mul", process_mul},
+	{"mod", process_mod},	{"pchar", process_pchar},
+	{"rotr", process_rotr},	{"queue", process_queue},
+	{"stack", process_stack}, {NULL, NULL}
+	};
 
-	if (file == NULL)
-	{
-		fprintf(stderr, "Error: Can't open file %s\n", filename);
-		exit(EXIT_FAILURE);
-	}
-	stack = NULL;
+	unsigned int i = 0;
+	char *op_code;
 
-	while (fgets(line, sizeof(line), file))
-	{
-		line_number++;
-		execute_instruction(&stack, line, line_number);
-	}
-	fclose(file);
-}
+	op_code = strtok(line_content, " \n\t");
 
-/**
- * execute_instruction - Executes a single instruction from a line.
- * @stack: Pointer to the top of the stack
- * @line: Line containing the instruction
- * @line_number: Line number in the input file
- */
-void execute_instruction(stack_t **stack, char *line, unsigned int line_number)
-{
-	char opcode[10];
-	int arg;
+	if (op_code && op_code[0] == '#')
+	return;
 
-	if (sscanf(line, "%s %d", opcode, &arg) == 2)
+	bus.arg = strtok(NULL, " \n\t");
+
+	while (opcode_func[i].opcode && op_code)
 	{
-	if (strcmp(opcode, "push") == 0 || strcmp(opcode, "pop") == 0)
+	if (strcmp(op_code, opcode_func[i].opcode) == 0)
 	{
-	process_push_pop(stack, arg, line_number);
+	opcode_func[i].f(stack, line_counter);
+	return;
 	}
-	else if (strcmp(opcode, "print") == 0)
-	{
-	process_print(stack, line_number);
+	i++;
 	}
-	else
+
+	if (op_code && opcode_func[i].opcode == NULL)
 	{
-	fprintf(stderr, "L%d: unknown instruction %s\n", line_number, opcode);
+	fprintf(stderr, "L%d: unknown instruction %s\n", line_counter, op_code);
+	fclose(monty_file);
+	free(line_content);
+	process_free_stack(*stack);
 	exit(EXIT_FAILURE);
-	}
-	}
-	else if (strcmp(opcode, "pall") == 0)
-	{
-	process_pall(stack, line_number);
-	}
-	else if (strcmp(opcode, "pint") == 0)
-	{
-	process_pint(stack, line_number);
-	}
-	else if (strcmp(opcode, "swap") == 0)
-	{
-	process_swap(stack, line_number);
-	}
-	else if (strcmp(opcode, "add") == 0)
-	{
-	process_add(stack, line_number);
-	}
-	else if (strcmp(opcode, "nop") == 0)
-	{
-	process_nop(stack, line_number);
 	}
 }
 

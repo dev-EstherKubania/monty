@@ -1,92 +1,109 @@
 #include "monty.h"
 
 /**
- * process_push_pop - Process push and pop instructions.
- * @stack: Pointer to the top of the stack
- * @arg: Argument value
- * @line_number: Line number in the input file
+ * process_nop - does nothing
+ * @stack: head pointer of the stack
+ * @line_num: line number for the file
+ * Return: nothing
  */
-void process_push_pop(stack_t **stack, int arg, unsigned int line_number)
+void process_nop(stack_t **stack, unsigned int line_num)
 {
-	if (arg == 0 || !stack)
+	(void)stack;
+	(void)line_num;
+}
+/**
+ * process_mul - multiplies the second top element with the top element
+ * @stack: head pointer of the stack
+ * @line_num: line number for the file
+ * Return: nothing
+ */
+void process_mul(stack_t **stack, unsigned int line_num)
+{
+	if (*stack == NULL || (*stack)->next == NULL)
 	{
-	fprintf(stderr, "L%u: usage: push integer\n", line_number);
+	fprintf(stderr, "L%u: can't mul, stack too short\n", line_num);
 	exit(EXIT_FAILURE);
 	}
 
-	push(stack, arg);
+	(*stack)->next->n *= (*stack)->n;
+	process_pop(stack, line_num);
 }
-
 /**
- * process_print - Prints the top element of the stack.
- * @stack: Pointer to the top of the stack
- * @line_number: Line number in the input file
+ * process_swap - swaps the top two elements of the stack
+ * @stack: head pointer of the stack
+ * @line_num: line number for the file
+ * Return: nothing
  */
-void process_print(stack_t **stack, unsigned int line_number)
+void process_swap(stack_t **stack, unsigned int line_num)
 {
-	if (*stack != NULL)
+	stack_t *temp = *stack;
+
+	if (*stack == NULL || (*stack)->next == NULL)
+	process_swap_err(line_num);
+
+	*stack = (*stack)->next;
+	(*stack)->prev = NULL;
+	if (temp->next)
+	temp->next->prev = temp;
+	temp->next = (*stack)->next;
+	temp->prev = *stack;
+	(*stack)->next = temp;
+}
+/**
+ * process_pop - removes the top element from the stack
+ * @stack: head pointer of the stack
+ * @line_num: line number for the file
+ * Return: nothing
+ */
+void process_pop(stack_t **stack, unsigned int line_num)
+{
+	stack_t *temp = *stack;
+
+	if (*stack == NULL)
+	process_pop_err(line_num);
+
+	*stack = (*stack)->next;
+	free(temp);
+}
+/**
+ * process_push - adds a new element to the stack
+ * @stack: stack head
+ * @line_num: line_number
+ * Return: no return
+ */
+void process_push(stack_t **stack, unsigned int line_num)
+{
+	int n, j = 0, flag = 0;
+
+	if (bus.arg)
 	{
-	printf("%d\n", (*stack)->n);
+	if (bus.arg[0] == '-')
+	j++;
+	for (; bus.arg[j] != '\0'; j++)
+	{
+	if (bus.arg[j] > 57 || bus.arg[j] < 48)
+	flag = 1;
+	}
+	if (flag == 1)
+	{
+	fclose(bus.file);
+	free(bus.content);
+	process_free_stack(*stack);
+	process_push_err(line_num);
+	}
 	}
 	else
 	{
-	fprintf(stderr, "L%u: can't print, stack empty\n", line_number);
-	exit(EXIT_FAILURE);
+	fclose(bus.file);
+	free(bus.content);
+	process_free_stack(*stack);
+	process_push_err(line_num);
 	}
-}
 
-/**
- * process_pall - Prints all elements of the stack.
- * @stack: Pointer to the top of the stack
- * @line_number: Line number in the input file
- */
-void process_pall(stack_t **stack, unsigned int line_number)
-{
-	stack_t *current = *stack;
-
-	while (current != NULL)
-	{
-	printf("%d\n", current->n);
-	current = current->next;
-	}
-	(void)line_number;
-}
-
-/**
- * process_pint - Prints the value at the top of the stack.
- * @stack: Pointer to the top of the stack
- * @line_number: Line number in the input file
- */
-void process_pint(stack_t **stack, unsigned int line_number)
-{
-	if (*stack != NULL)
-	{
-	printf("%d\n", (*stack)->n);
-	}
+	n = atoi(bus.arg);
+	if (bus.lifi == 0)
+	process_addnode(stack, n);
 	else
-	{
-	fprintf(stderr, "L%u: can't pint, stack empty\n", line_number);
-	exit(EXIT_FAILURE);
-	}
-}
-
-/**
- * process_swap - Swaps the top two elements of the stack.
- * @stack: Pointer to the top of the stack
- * @line_number: Line number in the input file
- */
-void process_swap(stack_t **stack, unsigned int line_number)
-{
-	if (*stack != NULL && (*stack)->next != NULL)
-	{
-	int temp = (*stack)->n;
-	(*stack)->n = (*stack)->next->n;
-	(*stack)->next->n = temp;
-	}
-	else
-	{
-	fprintf(stderr, "L%u: can't swap, stack too short\n", line_number);
-	exit(EXIT_FAILURE);
-	}
+	process_addqueue(stack, n);
 }
 

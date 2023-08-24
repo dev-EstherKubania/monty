@@ -1,32 +1,93 @@
 #include "monty.h"
-/**
- * process_add - Adds the top two elements of the stack.
- * @stack: Pointer to the top of the stack
- * @line_number: Line number in the input file
- */
-void process_add(stack_t **stack, unsigned int line_number)
-{
-	int result;
 
-	if (*stack != NULL && (*stack)->next != NULL)
+/**
+ * process_sub - subtracts the top element from the second element
+ * @stack: head pointer of the stack
+ * @line_num: line number for the file
+ * Return: nothing
+ */
+void process_sub(stack_t **stack, unsigned int line_num)
+{
+	if (*stack == NULL || (*stack)->next == NULL)
+	process_sub_err(line_num);
+
+	(*stack)->next->n -= (*stack)->n;
+	process_pop(stack, line_num);
+}
+
+/**
+ * process_div - divides the second top element
+ *	with the top element of the stack
+ * @stack: head pointer of the stack
+ * @line_num: line number for the file
+ * Return: nothing
+ */
+void process_div(stack_t **stack, unsigned int line_num)
+{
+	if (*stack == NULL || (*stack)->next == NULL)
 	{
-	result = pop(stack, line_number) + pop(stack, line_number);
-	push(stack, result);
-	}
-	else
-	{
-	fprintf(stderr, "L%u: can't add, stack too short\n", line_number);
+	fprintf(stderr, "L%u: can't div, stack too short\n", line_num);
 	exit(EXIT_FAILURE);
 	}
+	if ((*stack)->n == 0)
+	{
+	fprintf(stderr, "L%u: division by 0\n", line_num);
+	exit(EXIT_FAILURE);
+	}
+
+	(*stack)->next->n /= (*stack)->n;
+	process_pop(stack, line_num);
 }
 
 /**
- * process_nop - Does nothing.
- * @stack: Pointer to the top of the stack
- * @line_number: Line number in the input file
+ * process_pall - prints opcode element on the stack from top down
+ * @stack: the stack
+ * @line_num: opcode line number
+ * Return: nothing
  */
-void process_nop(stack_t **stack, unsigned int line_number)
+void process_pall(stack_t **stack, unsigned int line_num)
 {
-	(void)stack;
-	(void)line_number;
+	stack_t *temp = *stack;
+
+	while (temp != NULL)
+	{
+	printf("%d\n", temp->n);
+	temp = temp->next;
+	}
+	(void)line_num;
 }
+
+/**
+ * process_pint - function that prints opcode element at the top of the stack
+ * @stack: the stack
+ * @line_num: opcode line number
+ * Return: nothing
+ */
+void process_pint(stack_t **stack, unsigned int line_num)
+{
+	if (*stack == NULL)
+	process_pint_err(line_num);
+
+	printf("%d\n", (*stack)->n);
+}
+/**
+ * process_pchar - prints the ascii value of the char at the top of the stack
+ * @stack: head pointer of the stack
+ * @line_num: line number for the file
+ * Return: nothing
+ */
+void process_pchar(stack_t **stack, unsigned int line_num)
+{
+	if ((*stack)->n < 0 || (*stack)->n > 127)
+	{
+	fprintf(stderr, "L%u: can't pchar, value out of range\n", line_num);
+	exit(EXIT_FAILURE);
+	}
+	if (!(*stack))
+	{
+	fprintf(stderr, "L%u: can't pchar, stack empty\n", line_num);
+	exit(EXIT_FAILURE);
+	}
+	printf("%c\n", (*stack)->n);
+}
+

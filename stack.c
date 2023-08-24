@@ -1,55 +1,92 @@
 #include "monty.h"
 
 /**
- * push - Pushes an element onto the stack.
- * @stack: Pointer to the top of the stack
- * @value: Value to push onto the stack
+ * process_free_stack - frees a doubly linked list
+ * @stack: pointer to the head of the stack
  */
-void push(stack_t **stack, int value)
+void process_free_stack(stack_t *stack)
 {
-	stack_t *new_node = malloc(sizeof(stack_t));
+	stack_t *temp;
 
-	if (new_node == NULL)
+	temp = stack;
+	while (stack)
 	{
-	fprintf(stderr, "Error: malloc failed\n");
-	exit(EXIT_FAILURE);
+	temp = stack->next;
+	free(stack);
+	stack = temp;
 	}
-
-	new_node->n = value;
-	new_node->prev = NULL;
-	new_node->next = *stack;
-
-	if (*stack != NULL)
-	{
-	(*stack)->prev = new_node;
-	}
-
-	*stack = new_node;
 }
 
 /**
- * pop - Removes the top element from the stack.
- * @stack: Pointer to the top of the stack
- * @line_number: Line number in the input file
- * Return: The value of the popped element
+ * process_addqueue - add node to the tail stack
+ * @stack: head of the stack
+ * @n: new_value
+ * Return: no return
  */
-int pop(stack_t **stack, unsigned int line_number)
+void process_addqueue(stack_t **stack, int n)
 {
-	int popped_value = (*stack)->n;
-	stack_t *temp = *stack;
-	*stack = (*stack)->next;
+	stack_t *new_stack, *temp;
 
-	if (*stack == NULL)
+	temp = *stack;
+	new_stack = malloc(sizeof(stack_t));
+	if (new_stack == NULL)
 	{
-	fprintf(stderr, "L%d: can't pop an empty stack\n", line_number);
-	exit(EXIT_FAILURE);
+	printf("Error\n");
 	}
-	if (*stack != NULL)
+	new_stack->n = n;
+	new_stack->next = NULL;
+	if (temp)
 	{
-	(*stack)->prev = NULL;
+	while (temp->next)
+	temp = temp->next;
 	}
-
-	free(temp);
-	return (popped_value);
+	if (!temp)
+	{
+	*stack = new_stack;
+	new_stack->prev = NULL;
+	}
+	else
+	{
+	temp->next = new_stack;
+	new_stack->prev = temp;
+	}
 }
 
+/**
+ * process_addnode - add node to the head stack
+ * @stack: head of the stack
+ * @n: new_value
+ * Return: no return
+ */
+void process_addnode(stack_t **stack, int n)
+{
+
+	stack_t *new_stack, *temp;
+
+	temp = *stack;
+	new_stack = malloc(sizeof(stack_t));
+	if (new_stack == NULL)
+	{
+	printf("Error\n");
+	exit(0);
+	}
+	if (temp)
+	temp->prev = new_stack;
+	new_stack->n = n;
+	new_stack->next = *stack;
+	new_stack->prev = NULL;
+	*stack = new_stack;
+}
+/**
+ * process_stack - function that checks if the stack is in stack mode
+ * @stack: head pointer of the stack
+ * @line_num: line number of the file
+ * Return: nothing
+ */
+
+void process_stack(stack_t **stack, unsigned int line_num)
+{
+	(void)stack;
+	(void)line_num;
+	bus.lifi = 0;
+}
